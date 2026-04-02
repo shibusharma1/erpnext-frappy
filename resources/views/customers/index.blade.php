@@ -11,19 +11,13 @@
             </a>
         </div>
 
-        @if (session('success'))
-            <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-                {{ session('success') }}
-            </div>
-        @endif
-
         <div class="bg-white rounded-lg shadow overflow-hidden">
             <table class="w-full">
                 <thead class="bg-gray-200 border-b">
                     <tr>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">ID</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Name</th>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Country</th>
+                        {{-- <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Country</th> --}}
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Phone</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Email</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
@@ -35,13 +29,11 @@
                             <td class="px-6 py-4 text-sm text-gray-900">{{ $customer['name'] }}</td>
                             <td class="px-6 py-4 text-sm text-gray-900">{{ $customer['customer_name'] ?? '' }}</td>
                             {{-- <td class="px-6 py-4 text-sm text-gray-900">{{ $customer['customer_primary_address'] ?? '' }}</td> --}}
-                            <td class="px-6 py-4 text-sm text-gray-900">
-                                {{-- {{ strip_tags($customer['primary_address'] ?? '') }} --}}
-                                {{-- {{ trim(collect(explode('<br>', $customer['primary_address'] ?? ''))->filter()->last()) ?? 'N/A' }} --}}
+                            {{-- <td class="px-6 py-4 text-sm text-gray-900">
                                 {{ trim(
                                     collect(explode('<br>', $customer['primary_address'] ?? ''))->filter()->values()->slice(-3, 1)->first(),
                                 ) ?? 'N/A' }}
-                            </td>
+                            </td> --}}
                             <td class="px-6 py-4 text-sm text-gray-900">{{ $customer['mobile_no'] ?? '' }}</td>
                             <td class="px-6 py-4 text-sm text-gray-900">{{ $customer['email_id'] ?? '' }}</td>
                             <td class="px-6 py-4 text-sm space-x-2">

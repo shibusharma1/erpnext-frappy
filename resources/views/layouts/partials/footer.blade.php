@@ -24,7 +24,7 @@
                     <li><a href="{{ url('/items') }}" class="hover:text-white transition">Item</a></li>
                     <li><a href="{{ url('/customers') }}" class="hover:text-white transition">Customers</a></li>
                     <li><a href="{{ url('/sales') }}" class="hover:text-white transition">Sales Order</a></li>
-                    <li><a href="{{ url('/payment') }}" class="hover:text-white transition">Payment Entry</a></li>
+                    <li><a href="{{ url('/payments') }}" class="hover:text-white transition">Payment Entry</a></li>
                 </ul>
             </div>
 

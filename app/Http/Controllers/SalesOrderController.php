@@ -23,7 +23,7 @@ class SalesOrderController extends Controller
 
         $response = Http::withToken($this->accessToken())
             ->get($this->baseUrl, [
-                'fields' => json_encode(["name","customer_name","order_type","total_qty","total"]),
+                'fields' => json_encode(["name", "customer_name", "order_type", "total_qty", "total"]),
                 'limit_page_length' => 100
             ]);
 
@@ -52,6 +52,30 @@ class SalesOrderController extends Controller
             'success' => $response->successful(),
             'body' => $response->json(), // or $response->body()
         ]);
+
+        // ✅ If ERPNext update failed
+        if (!$response->successful()) {
+
+            $errorMessage = $response->json()['exception'] ?? 'Something went wrong';
+
+            // ERPNext message comes inside _server_messages
+            if (!empty($response->json()['_server_messages'])) {
+                $serverMessages = json_decode($response->json()['_server_messages'], true);
+
+                if (!empty($serverMessages[0])) {
+                    $decodedMessage = json_decode($serverMessages[0], true);
+
+                    if (!empty($decodedMessage['message'])) {
+                        $errorMessage = strip_tags($decodedMessage['message']); // remove <strong>
+                    }
+                }
+            }
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', $errorMessage);
+        }
+
 
         return redirect()->route('sales_orders.index')
             ->with('success', 'Item created successfully.');
@@ -87,13 +111,37 @@ class SalesOrderController extends Controller
 
         $encodedName = rawurlencode($name);
 
-        $api_response = Http::withToken($this->accessToken())
+        $response = Http::withToken($this->accessToken())
             ->put("{$this->baseUrl}/{$encodedName}", $request->validated());
 
         Log::channel('integrations')->info('ERP Response', [
-            'status' => $api_response->status(),
-            'json'   => $api_response->json(),
+            'status' => $response->status(),
+            'json'   => $response->json(),
         ]);
+
+        // ✅ If ERPNext update failed
+        if (!$response->successful()) {
+
+            $errorMessage = $response->json()['exception'] ?? 'Something went wrong';
+
+            // ERPNext message comes inside _server_messages
+            if (!empty($response->json()['_server_messages'])) {
+                $serverMessages = json_decode($response->json()['_server_messages'], true);
+
+                if (!empty($serverMessages[0])) {
+                    $decodedMessage = json_decode($serverMessages[0], true);
+
+                    if (!empty($decodedMessage['message'])) {
+                        $errorMessage = strip_tags($decodedMessage['message']); // remove <strong>
+                    }
+                }
+            }
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', $errorMessage);
+        }
+
 
         return redirect()->route('sales_orders.index')
             ->with('success', 'Item updated successfully.');

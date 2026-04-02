@@ -2,28 +2,27 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class PaymentRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'payment_type' => 'required|string',
+            'posting_date' => 'required|date',
+            'party_type' => 'required|string',
+            'party' => 'required|string',
+            'paid_from' => 'required|string',
+            'paid_to' => 'required|string',
+            'paid_amount' => 'required|numeric',
+            'reference_no' => 'nullable|string',
+            'remarks' => 'nullable|string',
         ];
     }
 }
