@@ -3,6 +3,7 @@
 use App\Http\Controllers\Company\Admin\ERPNextOAuthController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SalesOrderController;
 use Illuminate\Support\Facades\Route;
 
@@ -56,4 +57,15 @@ Route::prefix('sales')->name('sales.')->group(function () {
     Route::get('/{name}/edit', [SalesOrderController::class, 'edit'])->name('edit');
     Route::put('/{name}', [SalesOrderController::class, 'update'])->name('update');
     Route::delete('/{name}', [SalesOrderController::class, 'destroy'])->name('destroy');
+});
+
+Route::prefix('payments')->name('payments.')->group(function () {
+    Route::get('/', [PaymentController::class, 'index'])->name('index');
+    // Route::get('/test', [CustomerController::class, 'ping'])->name('test');
+    Route::get('/create', [PaymentController::class, 'create'])->name('create');
+    Route::post('/', [PaymentController::class, 'store'])->name('store');
+    Route::get('/{name}', [PaymentController::class, 'show'])->name('show');
+    Route::get('/{name}/edit', [PaymentController::class, 'edit'])->name('edit');
+    Route::put('/{name}', [PaymentController::class, 'update'])->name('update');
+    Route::delete('/{name}', [PaymentController::class, 'destroy'])->name('destroy');
 });

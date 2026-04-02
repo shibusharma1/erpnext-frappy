@@ -12,15 +12,6 @@ class ItemController extends Controller
     protected string $baseUrl = 'https://manjit.frappe.cloud/api/resource/Item';
     protected $erpTokenService;
 
-    // protected function headers()
-    // {
-    //     return [
-    //         'Accept' => 'application/json',
-    //         // Add Authorization if needed
-    //     ];
-    // }
-
-
     public function __construct(ERPTokenService $erpTokenService)
     {
         $this->erpTokenService = $erpTokenService;
@@ -60,6 +51,30 @@ class ItemController extends Controller
             'body' => $response->json(), // or $response->body()
         ]);
 
+              // ✅ If ERPNext update failed
+    if (!$response->successful()) {
+
+        $errorMessage = $response->json()['exception'] ?? 'Something went wrong';
+
+        // ERPNext message comes inside _server_messages
+        if (!empty($response->json()['_server_messages'])) {
+            $serverMessages = json_decode($response->json()['_server_messages'], true);
+
+            if (!empty($serverMessages[0])) {
+                $decodedMessage = json_decode($serverMessages[0], true);
+
+                if (!empty($decodedMessage['message'])) {
+                    $errorMessage = strip_tags($decodedMessage['message']); // remove <strong>
+                }
+            }
+        }
+
+        return redirect()->back()
+            ->withInput()
+            ->with('error', $errorMessage);
+    }
+
+
         return redirect()->route('items.index')
             ->with('success', 'Item created successfully.');
     }
@@ -94,19 +109,42 @@ class ItemController extends Controller
 
 
 
-        // $api_response = Http::withToken($this->accessToken())
+        // $response = Http::withToken($this->accessToken())
         //     ->put("{$this->baseUrl}/{name}", $request->validated());
 
         $encodedName = rawurlencode($name);
 
-        $api_response = Http::withToken($this->accessToken())
+        $response = Http::withToken($this->accessToken())
             ->put("{$this->baseUrl}/{$encodedName}", $request->validated());
 
-        // Log::channel('integrations')->info($api_response); 
+        // Log::channel('integrations')->info($response); 
         Log::channel('integrations')->info('ERP Response', [
-            'status' => $api_response->status(),
-            'json'   => $api_response->json(),
+            'status' => $response->status(),
+            'json'   => $response->json(),
         ]);
+
+              // ✅ If ERPNext update failed
+    if (!$response->successful()) {
+
+        $errorMessage = $response->json()['exception'] ?? 'Something went wrong';
+
+        // ERPNext message comes inside _server_messages
+        if (!empty($response->json()['_server_messages'])) {
+            $serverMessages = json_decode($response->json()['_server_messages'], true);
+
+            if (!empty($serverMessages[0])) {
+                $decodedMessage = json_decode($serverMessages[0], true);
+
+                if (!empty($decodedMessage['message'])) {
+                    $errorMessage = strip_tags($decodedMessage['message']); // remove <strong>
+                }
+            }
+        }
+
+        return redirect()->back()
+            ->withInput()
+            ->with('error', $errorMessage);
+    }
 
         return redirect()->route('items.index')
             ->with('success', 'Item updated successfully.');

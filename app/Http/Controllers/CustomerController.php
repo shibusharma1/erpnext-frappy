@@ -34,6 +34,7 @@ class CustomerController extends Controller
                 'limit_page_length' => 100
             ]);
 
+
         Log::channel('integrations')->info('Customer List', ['response' => $response->json()]);
 
         $customers = $response->json()['data'] ?? [];
@@ -49,8 +50,33 @@ class CustomerController extends Controller
 
     public function store(CustomerRequest $request)
     {
-        Http::withToken($this->accessToken())
+       $response = Http::withToken($this->accessToken())
             ->post($this->baseUrl, $request->validated());
+
+
+        // ✅ If ERPNext update failed
+        if (!$response->successful()) {
+
+            $errorMessage = $response->json()['exception'] ?? 'Something went wrong';
+
+            // ERPNext message comes inside _server_messages
+            if (!empty($response->json()['_server_messages'])) {
+                $serverMessages = json_decode($response->json()['_server_messages'], true);
+
+                if (!empty($serverMessages[0])) {
+                    $decodedMessage = json_decode($serverMessages[0], true);
+
+                    if (!empty($decodedMessage['message'])) {
+                        $errorMessage = strip_tags($decodedMessage['message']); // remove <strong>
+                    }
+                }
+            }
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', $errorMessage);
+        }
+
 
         return redirect()->route('customers.index')
             ->with('success', 'Customer created successfully.');
@@ -78,6 +104,8 @@ class CustomerController extends Controller
         return view('customers.create', compact('customer'));
     }
 
+
+    // Note: email and phone number of the customer cann't be updated
     public function update(CustomerRequest $request, $name)
     {
         Log::channel(('integrations'))->info('Update Customer Name', ['name' => $name]);
@@ -86,14 +114,38 @@ class CustomerController extends Controller
 
         $encodedName = rawurlencode($name);
 
-        $api_response = Http::withToken($this->accessToken())
+        $response = Http::withToken($this->accessToken())
             ->put("{$this->baseUrl}/{$encodedName}", $request->validated());
 
-        // Log::channel('integrations')->info($api_response); 
+        // Log::channel('integrations')->info($response); 
         Log::channel('integrations')->info('ERP Response', [
-            'status' => $api_response->status(),
-            'json'   => $api_response->json(),
+            'status' => $response->status(),
+            'json'   => $response->json(),
         ]);
+
+        // ✅ If ERPNext update failed
+        if (!$response->successful()) {
+
+            $errorMessage = $response->json()['exception'] ?? 'Something went wrong';
+
+            // ERPNext message comes inside _server_messages
+            if (!empty($response->json()['_server_messages'])) {
+                $serverMessages = json_decode($response->json()['_server_messages'], true);
+
+                if (!empty($serverMessages[0])) {
+                    $decodedMessage = json_decode($serverMessages[0], true);
+
+                    if (!empty($decodedMessage['message'])) {
+                        $errorMessage = strip_tags($decodedMessage['message']); // remove <strong>
+                    }
+                }
+            }
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', $errorMessage);
+        }
+
 
         return redirect()->route('customers.index')
             ->with('success', 'Customer updated successfully.');
