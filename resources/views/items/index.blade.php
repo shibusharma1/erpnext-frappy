@@ -18,12 +18,12 @@
 
                 <thead class="bg-gray-200 border-b">
                     <tr>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">ID</th>
+                        {{-- <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">ID</th> --}}
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Item Code</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Item Name</th>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Standard Rate</th>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Valuation Rate</th>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Last Purchase Rate</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Category</th>
+                        {{-- <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Valuation Rate</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Last Purchase Rate</th> --}}
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
                     </tr>
                 </thead>
@@ -32,9 +32,9 @@
                     @foreach ($items as $item)
                         <tr class="border-b hover:bg-gray-50">
 
-                            <td class="px-6 py-4 text-sm text-gray-900">
+                            {{-- <td class="px-6 py-4 text-sm text-gray-900">
                                 {{ $item['name'] }}
-                            </td>
+                            </td> --}}
 
                             <td class="px-6 py-4 text-sm text-gray-900">
                                 {{ $item['item_code'] ?? '' }}
@@ -45,16 +45,16 @@
                             </td>
 
                             <td class="px-6 py-4 text-sm text-gray-900">
-                                {{ $item['standard_rate'] ?? 0 }}
+                                {{ $item['item_group'] ?? 'N/A' }}
                             </td>
 
-                            <td class="px-6 py-4 text-sm text-gray-900">
+                            {{-- <td class="px-6 py-4 text-sm text-gray-900">
                                 {{ $item['valuation_rate'] ?? 0 }}
                             </td>
 
                             <td class="px-6 py-4 text-sm text-gray-900">
                                 {{ $item['last_purchase_rate'] ?? 0 }}
-                            </td>
+                            </td> --}}
 
                             <td class="px-6 py-4 text-sm space-x-2">
 

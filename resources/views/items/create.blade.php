@@ -37,11 +37,11 @@
                             value="{{ old('item_group', $item['item_group'] ?? '') }}">
                     </div>
 
-                    <div>
+                    {{-- <div>
                         <label>Stock UOM</label>
                         <input type="text" name="stock_uom" class="w-full border p-2 rounded"
                             value="{{ old('stock_uom', $item['stock_uom'] ?? 'Nos') }}">
-                    </div>
+                    </div> --}}
 
                     <div>
                         <label>Brand</label>
@@ -49,14 +49,14 @@
                             value="{{ old('brand', $item['brand'] ?? '') }}">
                     </div>
 
-                    <div>
+                    {{-- <div>
                         <label>Country of Origin</label>
                         <input type="text" name="country_of_origin" class="w-full border p-2 rounded"
                             value="{{ old('country_of_origin', $item['country_of_origin'] ?? 'Nepal') }}">
-                    </div>
+                    </div> --}}
 
                     {{-- NUMERIC --}}
-                    <div>
+                    {{-- <div>
                         <label>Standard Rate</label>
                         <input type="number" step="0.01" name="standard_rate" class="w-full border p-2 rounded"
                             value="{{ old('standard_rate', $item['standard_rate'] ?? 0) }}">
@@ -72,7 +72,7 @@
                         <label>Opening Stock</label>
                         <input type="number" name="opening_stock" class="w-full border p-2 rounded"
                             value="{{ old('opening_stock', $item['opening_stock'] ?? 0) }}">
-                    </div>
+                    </div> 
 
                     <div>
                         <label>Weight Per Unit</label>
@@ -92,7 +92,6 @@
                             value="{{ old('end_of_life', $item['end_of_life'] ?? '') }}">
                     </div>
 
-                    {{-- PURCHASE --}}
                     <div>
                         <label>Min Order Qty</label>
                         <input type="number" name="min_order_qty" class="w-full border p-2 rounded"
@@ -116,7 +115,7 @@
                         <input type="number" name="max_discount" class="w-full border p-2 rounded"
                             value="{{ old('max_discount', $item['max_discount'] ?? 0) }}">
                     </div>
-
+                    --}}
                     <div class="col-span-2">
                         <label>Description</label>
                         <textarea name="description" class="w-full border p-2 rounded">{{ old('description', $item['description'] ?? '') }}</textarea>
@@ -127,7 +126,7 @@
                 {{-- CHECKBOXES --}}
                 <div class="grid grid-cols-3 gap-3 mt-6 text-sm">
 
-                    <label><input type="checkbox" name="is_stock_item" value="1"
+                    {{-- <label><input type="checkbox" name="is_stock_item" value="1"
                             {{ old('is_stock_item', $item['is_stock_item'] ?? 0) ? 'checked' : '' }}> Stock
                         Item</label>
 
@@ -155,7 +154,7 @@
 
                     <label><input type="checkbox" name="grant_commission" value="1"
                             {{ old('grant_commission', $item['grant_commission'] ?? 0) ? 'checked' : '' }}>
-                        Commission</label>
+                        Commission</label> --}}
 
                     <label><input type="checkbox" name="disabled" value="1"
                             {{ old('disabled', $item['disabled'] ?? 0) ? 'checked' : '' }}> Disabled</label>

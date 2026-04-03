@@ -2,7 +2,7 @@
 @section('title', 'Sales Order Details')
 
 @section('contents')
-<div class="min-h-screen flex items-center justify-center py-12 px-4">
+<div class="flex items-center justify-center py-12 px-4">
     <div class="w-full max-w-6xl bg-white rounded-lg shadow-lg p-8">
         <h2 class="text-3xl font-bold text-gray-900 mb-8">Sales Order Details</h2>
 

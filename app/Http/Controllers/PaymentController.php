@@ -27,6 +27,13 @@ class PaymentController extends Controller
                 'limit_page_length' => 100
             ]);
 
+        // $response = Http::withToken($this->accessToken())
+        //     ->get($this->baseUrl, [
+        //         'fields' => json_encode(["*"]),
+        //         'limit_page_length' => 100
+        //     ]);
+
+        // return $response->json();
         Log::channel('integrations')->info('Payment List', ['response' => $response->json()]);
 
         $payments = $response->json()['data'] ?? [];
@@ -39,23 +46,71 @@ class PaymentController extends Controller
         return view('payments.create');
     }
 
+    // public function store(PaymentRequest $request)
+    // {
+    //     $response =  Http::withToken($this->accessToken())
+    //         ->post($this->baseUrl, $request->validated());
+
+    //     Log::channel('integrations')->info('Payment Store API Response', [
+    //         'status' => $response->status(),
+    //         'success' => $response->successful(),
+    //         'body' => $response->json(), // or $response->body()
+    //     ]);
+
+    //     // ✅ If ERPNext update failed
+    //     if (!$response->successful()) {
+
+    //         $errorMessage = $response->json()['exception'] ?? 'Something went wrong';
+
+    //         // ERPNext message comes inside _server_messages
+    //         if (!empty($response->json()['_server_messages'])) {
+    //             $serverMessages = json_decode($response->json()['_server_messages'], true);
+
+    //             if (!empty($serverMessages[0])) {
+    //                 $decodedMessage = json_decode($serverMessages[0], true);
+
+    //                 if (!empty($decodedMessage['message'])) {
+    //                     $errorMessage = strip_tags($decodedMessage['message']); // remove <strong>
+    //                 }
+    //             }
+    //         }
+
+    //         return redirect()->back()
+    //             ->withInput()
+    //             ->with('error', $errorMessage);
+    //     }
+
+
+    //     return redirect()->route('payments.index')
+    //         ->with('success', 'Payment created successfully.');
+    // }
     public function store(PaymentRequest $request)
     {
-        $response =  Http::withToken($this->accessToken())
-            ->post($this->baseUrl, $request->validated());
+        $payload = $request->validated();
+        $payload['paid_amount'] = (float) $payload['paid_amount'];
+        $payload["reference_no"] = "BANK-TRX-0001";
+        $payload['reference_date'] = now()->format('Y-m-d');
+        // $payload['docstatus'] = 1;
+        // $payload['status'] ="Submitted";
+        // $payload['received_amount'] = (float) $payload['received_amount'];
+        // Add default exchange rates
+        $payload['source_exchange_rate'] = $payload['source_exchange_rate'] ?? 1;
+        $payload['target_exchange_rate'] = $payload['target_exchange_rate'] ?? 1;
+
+        $response = Http::withToken($this->accessToken())
+            ->post($this->baseUrl, $payload);
 
         Log::channel('integrations')->info('Payment Store API Response', [
             'status' => $response->status(),
             'success' => $response->successful(),
-            'body' => $response->json(), // or $response->body()
+            'body' => $response->json(),
+            'payload' => $payload
         ]);
 
-        // ✅ If ERPNext update failed
         if (!$response->successful()) {
 
             $errorMessage = $response->json()['exception'] ?? 'Something went wrong';
 
-            // ERPNext message comes inside _server_messages
             if (!empty($response->json()['_server_messages'])) {
                 $serverMessages = json_decode($response->json()['_server_messages'], true);
 
@@ -63,7 +118,7 @@ class PaymentController extends Controller
                     $decodedMessage = json_decode($serverMessages[0], true);
 
                     if (!empty($decodedMessage['message'])) {
-                        $errorMessage = strip_tags($decodedMessage['message']); // remove <strong>
+                        $errorMessage = strip_tags($decodedMessage['message']);
                     }
                 }
             }
@@ -73,11 +128,9 @@ class PaymentController extends Controller
                 ->with('error', $errorMessage);
         }
 
-
         return redirect()->route('payments.index')
             ->with('success', 'Payment created successfully.');
     }
-
     public function show($name)
     {
         $response = Http::withToken($this->accessToken())
@@ -105,10 +158,21 @@ class PaymentController extends Controller
         Log::channel(('integrations'))->info('Update Payment Name', ['name' => $name]);
         Log::channel('integrations')->info('Update Payment Request Data', ['request' => $request->validated()]);
 
+        $payload = $request->validated();
+        $payload['paid_amount'] = (float) $payload['paid_amount'];
+        $payload["reference_no"] = "BANK-TRX-0001";
+        $payload['reference_date'] = now()->format('Y-m-d');
+        // $payload['docstatus'] = 1;
+        // $payload['status'] ="Submitted";
+        // $payload['received_amount'] = (float) $payload['received_amount'];
+        // Add default exchange rates
+        $payload['source_exchange_rate'] = $payload['source_exchange_rate'] ?? 1;
+        $payload['target_exchange_rate'] = $payload['target_exchange_rate'] ?? 1;
+
         $encodedName = rawurlencode($name);
 
         $response = Http::withToken($this->accessToken())
-            ->put("{$this->baseUrl}/{$encodedName}", $request->validated());
+            ->put("{$this->baseUrl}/{$encodedName}", $payload);
 
         // Log::channel('integrations')->info($response); 
         Log::channel('integrations')->info('ERP Response', [
