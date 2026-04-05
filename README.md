@@ -72,7 +72,7 @@ The controller formats the data to match the Frappe Sales Order Doctype requirem
       "rate": 200
     }
   ]
-}
+}```
 🤝 Contributing
 Fork the Project
 
