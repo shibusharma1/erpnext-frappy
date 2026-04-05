@@ -2,43 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Http;
-use Illuminate\support\Facades\Log;
-use App\Services\ERPTokenService;
 use App\Http\Requests\CustomerRequest;
+use App\Services\ERPNextApiService;
+use Illuminate\Support\Facades\Log;
 
 class CustomerController extends Controller
 {
-    protected string $baseUrl = 'https://manjit.frappe.cloud/api/resource/Customer';
-    protected $erpTokenService;
+    protected ERPNextApiService $erp;
+    protected string $doctype = "Customer";
 
-    public function __construct(ERPTokenService $erpTokenService)
+    public function __construct(ERPNextApiService $erp)
     {
-        $this->erpTokenService = $erpTokenService;
+        $this->erp = $erp;
     }
-
 
     public function index()
     {
+        $url = $this->erp->resource($this->doctype);
 
-        $response = Http::withToken($this->accessToken())
-            ->get($this->baseUrl, [
-                'fields' => json_encode(["*"]),
-                'limit_page_length' => 100
-            ]);
+        $response = $this->erp->get($url, [
+            'fields' => json_encode(["*"]),
+            'limit_page_length' => 100
+        ]);
 
-
-        $api_items = Http::withToken($this->accessToken())
-            ->get($this->baseUrl, [
-                'fields' => json_encode(["*"]),
-                'limit_page_length' => 100
-            ]);
-
-
-        Log::channel('integrations')->info('Customer List', ['response' => $response->json()]);
+        Log::channel('integrations')->info('Customer List', [
+            'status' => $response->status(),
+            'response' => $response->json()
+        ]);
 
         $customers = $response->json()['data'] ?? [];
-
 
         return view('customers.index', compact('customers'));
     }
@@ -50,33 +42,15 @@ class CustomerController extends Controller
 
     public function store(CustomerRequest $request)
     {
-       $response = Http::withToken($this->accessToken())
-            ->post($this->baseUrl, $request->validated());
+        $url = $this->erp->resource($this->doctype);
 
+        $response = $this->erp->post($url, $request->validated());
 
-        // ✅ If ERPNext update failed
         if (!$response->successful()) {
-
-            $errorMessage = $response->json()['exception'] ?? 'Something went wrong';
-
-            // ERPNext message comes inside _server_messages
-            if (!empty($response->json()['_server_messages'])) {
-                $serverMessages = json_decode($response->json()['_server_messages'], true);
-
-                if (!empty($serverMessages[0])) {
-                    $decodedMessage = json_decode($serverMessages[0], true);
-
-                    if (!empty($decodedMessage['message'])) {
-                        $errorMessage = strip_tags($decodedMessage['message']); // remove <strong>
-                    }
-                }
-            }
-
             return redirect()->back()
                 ->withInput()
-                ->with('error', $errorMessage);
+                ->with('error', $this->erp->extractError($response));
         }
-
 
         return redirect()->route('customers.index')
             ->with('success', 'Customer created successfully.');
@@ -84,68 +58,50 @@ class CustomerController extends Controller
 
     public function show($name)
     {
-        $response = Http::withToken($this->accessToken())
-            ->get("{$this->baseUrl}/{$name}");
+        $url = $this->erp->resource($this->doctype);
+
+        $response = $this->erp->get("{$url}/" . rawurlencode($name));
 
         $customer = $response->json()['data'] ?? [];
 
-        Log::channel('integrations')->info('Customer Details', ['response' => $response->body()]);
+        Log::channel('integrations')->info('Customer Details', [
+            'status' => $response->status(),
+            'response' => $response->json()
+        ]);
 
         return view('customers.show', compact('customer'));
     }
 
     public function edit($name)
     {
-        $response = Http::withToken($this->accessToken())
-            ->get("{$this->baseUrl}/{$name}");
+        $url = $this->erp->resource($this->doctype);
+
+        $response = $this->erp->get("{$url}/" . rawurlencode($name));
 
         $customer = $response->json()['data'] ?? [];
 
         return view('customers.create', compact('customer'));
     }
 
-
-    // Note: email and phone number of the customer cann't be updated
     public function update(CustomerRequest $request, $name)
     {
-        Log::channel(('integrations'))->info('Update Customer Name', ['name' => $name]);
-        // Log::channel(('integrations'))->info('Update Customer URL', ['url' => "{$this->baseUrl}/{$name}"]);
+        $url = $this->erp->resource($this->doctype);
+
+        Log::channel('integrations')->info('Update Customer Name', ['name' => $name]);
         Log::channel('integrations')->info('Update Customer Request Data', ['request' => $request->validated()]);
 
-        $encodedName = rawurlencode($name);
+        $response = $this->erp->put("{$url}/" . rawurlencode($name), $request->validated());
 
-        $response = Http::withToken($this->accessToken())
-            ->put("{$this->baseUrl}/{$encodedName}", $request->validated());
-
-        // Log::channel('integrations')->info($response); 
-        Log::channel('integrations')->info('ERP Response', [
+        Log::channel('integrations')->info('ERP Update Response', [
             'status' => $response->status(),
-            'json'   => $response->json(),
+            'json' => $response->json(),
         ]);
 
-        // ✅ If ERPNext update failed
         if (!$response->successful()) {
-
-            $errorMessage = $response->json()['exception'] ?? 'Something went wrong';
-
-            // ERPNext message comes inside _server_messages
-            if (!empty($response->json()['_server_messages'])) {
-                $serverMessages = json_decode($response->json()['_server_messages'], true);
-
-                if (!empty($serverMessages[0])) {
-                    $decodedMessage = json_decode($serverMessages[0], true);
-
-                    if (!empty($decodedMessage['message'])) {
-                        $errorMessage = strip_tags($decodedMessage['message']); // remove <strong>
-                    }
-                }
-            }
-
             return redirect()->back()
                 ->withInput()
-                ->with('error', $errorMessage);
+                ->with('error', $this->erp->extractError($response));
         }
-
 
         return redirect()->route('customers.index')
             ->with('success', 'Customer updated successfully.');
@@ -153,36 +109,27 @@ class CustomerController extends Controller
 
     public function destroy($name)
     {
-        Http::withToken($this->accessToken())
-            ->delete("{$this->baseUrl}/{$name}");
+        $url = $this->erp->resource($this->doctype);
+
+        $response = $this->erp->delete("{$url}/" . rawurlencode($name));
+
+        if (!$response->successful()) {
+            return redirect()->back()
+                ->with('error', $this->erp->extractError($response));
+        }
 
         return redirect()->route('customers.index')
             ->with('success', 'Customer deleted successfully.');
     }
 
-    private function accessToken()
-    {
-        $result = $this->erpTokenService->getToken();
-
-        if (!$result['success']) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $result['message']
-            ], 400);
-        }
-
-        $accessToken = $result['access_token'];
-
-        return $accessToken;
-    }
-
     public function ping()
     {
+        $response = $this->erp->get(config('erpnext.base_url') . "/api/v2/method/ping");
 
-        $result = $this->erpTokenService->getToken();
-        $response = Http::withToken($result['access_token'])->get('https://manjit.frappe.cloud/api/v2/method/ping');
-
-        Log::channel('integrations')->info('Ping Response', ['response' => $response->json()]);
+        Log::channel('integrations')->info('Ping Response', [
+            'status' => $response->status(),
+            'response' => $response->json()
+        ]);
 
         return response()->json([
             'status' => 'success',
@@ -191,10 +138,3 @@ class CustomerController extends Controller
         ]);
     }
 }
-
-
-// Note:
-// 1. Both the encoded URL and normal URL will work same.
-// 2. While fetching all the items in the index it will only render the name of the any DOCTYPE(Customer/Items/SalesOrder/PaymentInvoice)
-// 3. So you need to add ?field=['name','customer_name','mobile_no','email_id'] or to fetch all field you can do ?filed=["*"]
-// 4. Here name = id. Here name and customer_name are two different thing.Name=id whereas customer_name refers to the name that is used to displaying name of the customer

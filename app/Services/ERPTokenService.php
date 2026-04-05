@@ -9,21 +9,18 @@ use Carbon\Carbon;
 
 class ERPTokenService
 {
-    protected $baseUrl;
-    protected $clientId;
-    protected $clientSecret;
+    protected string $baseUrl;
+    protected string $clientId;
+    protected string $clientSecret;
 
     public function __construct()
     {
-        $this->baseUrl = config('erpnext.base_url'); // e.g., https://manjit.frappe.cloud
+        $this->baseUrl = config('erpnext.base_url');
         $this->clientId = config('erpnext.client_id');
         $this->clientSecret = config('erpnext.client_secret');
     }
 
-    /**
-     * Get valid access token
-     */
-    public function getToken()
+    public function getToken(): array
     {
         $tokenRecord = DB::table('integration_accounts')->first();
 
@@ -32,35 +29,27 @@ class ERPTokenService
         }
 
         $expiresAt = Carbon::parse($tokenRecord->access_token_expires_at);
-        $now = Carbon::now();
 
-        // Check if token is expired
-        if ($now->gte($expiresAt)) {
+        if (Carbon::now()->gte($expiresAt)) {
             Log::info('ERP Token expired. Refreshing...');
-            $refreshResult = $this->refreshToken($tokenRecord->refresh_token);
-
-            if (!$refreshResult['success']) {
-                return $refreshResult; // return error message
-            }
-
-            return ['success' => true, 'access_token' => $refreshResult['access_token']];
+            return $this->refreshToken($tokenRecord->refresh_token);
         }
 
         return ['success' => true, 'access_token' => $tokenRecord->access_token];
     }
 
-    /**
-     * Refresh ERP token using refresh token
-     */
-    protected function refreshToken($refreshToken)
+    protected function refreshToken(string $refreshToken): array
     {
         try {
-            $response = Http::asForm()->post("https://manjit.frappe.cloud/api/method/frappe.integrations.oauth2.get_token", [
-                'grant_type' => 'refresh_token',
-                'refresh_token' => $refreshToken,
-                'client_id' => $this->clientId,
-                'client_secret' => $this->clientSecret,
-            ]);
+            $response = Http::asForm()->post(
+                "{$this->baseUrl}/api/method/frappe.integrations.oauth2.get_token",
+                [
+                    'grant_type' => 'refresh_token',
+                    'refresh_token' => $refreshToken,
+                    'client_id' => $this->clientId,
+                    'client_secret' => $this->clientSecret,
+                ]
+            );
 
             if ($response->failed()) {
                 Log::error('Failed to refresh ERP token', ['response' => $response->body()]);
@@ -69,9 +58,8 @@ class ERPTokenService
 
             $data = $response->json();
 
-            // Save the new token in DB
             DB::table('integration_accounts')->updateOrInsert(
-                ['id' => 1], // assuming single record
+                ['id' => 1],
                 [
                     'access_token' => $data['access_token'],
                     'refresh_token' => $data['refresh_token'],
@@ -83,7 +71,7 @@ class ERPTokenService
             return ['success' => true, 'access_token' => $data['access_token']];
         } catch (\Exception $e) {
             Log::error('Exception while refreshing ERP token', ['error' => $e->getMessage()]);
-            return ['success' => false, 'message' => 'Exception while refreshing ERP token'];
+            return ['success' => false, 'message' => $e->getMessage()];
         }
     }
 }
