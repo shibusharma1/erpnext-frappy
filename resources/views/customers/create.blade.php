@@ -30,11 +30,21 @@
                         value="{{ old('country', $customer['country'] ?? '') }}">
                 </div> --}}
 
-                <div class="mb-5">
+                {{-- <div class="mb-5">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
                     <input type="text" name="mobile_no"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-600 focus:border-transparent"
                         value="{{ old('mobile_no', $customer['mobile_no'] ?? '') }}" @readonly(isset($customer))>
+                </div> --}}
+
+                <div class="mb-5">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+
+                    <input type="number" name="mobile_no"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-600 focus:border-transparent"
+                        value="{{ old('mobile_no', $customer['mobile_no'] ?? '') }}" pattern="^9[678][0-9]{8}$"
+                        maxlength="10" minlength="10" inputmode="numeric"
+                        title="Phone number must be 10 digits and start with 96, 97, or 98" required @readonly(isset($customer))>
                 </div>
 
                 <div class="mb-6">

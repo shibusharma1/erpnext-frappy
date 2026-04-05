@@ -20,8 +20,8 @@ class ERPNextOAuthController extends Controller
 
     public function __construct()
     {
-        $this->clientId = env('ERPNEXT_CLIENT_ID', 'crd6vthd60');
-        $this->clientSecret = env('ERPNEXT_CLIENT_SECRET', 'cc9dc7272f');
+        $this->clientId = env('ERPNEXT_CLIENT_ID');
+        $this->clientSecret = env('ERPNEXT_CLIENT_SECRET');
     }
 
     /** 
@@ -62,7 +62,6 @@ class ERPNextOAuthController extends Controller
      */
     public function callback(Request $request, $domain = null)
     {
-
 
         $service = app(IntegrationAccountService::class);
 
