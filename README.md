@@ -5,7 +5,7 @@ A modern Laravel 12 implementation for managing **ERPNext Sales Orders** via the
 ## 🚀 Features
 
 - **Full Sales Order CRUD**: Manage orders, items, and customers from a custom Laravel dashboard.
-- **Frappe API Integration**: Direct communication with `manjit.frappe.cloud`.
+- **Frappe API Integration**: Direct communication with `{your_frappy_name}.frappe.cloud`.
 - **Dynamic Item Management**: Add/Remove item rows dynamically using JavaScript.
 - **ERP Status Mapping**: Handles `docstatus` (0: Draft, 1: Submitted, 2: Cancelled) to match ERPNext logic.
 - **Tailwind CSS UI**: Clean, responsive interface using the standard Laravel starter kit layout.
@@ -21,7 +21,7 @@ A modern Laravel 12 implementation for managing **ERPNext Sales Orders** via the
 
 - PHP 8.2 or higher
 - Composer
-- An active ERPNext/Frappe instance (e.g., `manjit.frappe.cloud`)
+- An active ERPNext/Frappe instance (e.g., `{your_frappy_name}.frappe.cloud`)
 - ERPNext API Key and API Secret (generated from the User document in ERPNext)
 
 ## ⚙️ Installation
@@ -39,7 +39,7 @@ Environment Setup:
 Copy the .env.example to .env and configure your ERPNext credentials:
 
 Code snippet
-ERPNEXT_URL=[https://manjit.frappe.cloud](https://manjit.frappe.cloud)
+ERPNEXT_URL=[https://{your_frappy_name}.frappe.cloud](https://{your_frappy_name}.frappe.cloud)
 ERPNEXT_API_KEY=your_api_key
 ERPNEXT_API_SECRET=your_api_secret
 Generate App Key:
@@ -59,12 +59,12 @@ This application uses docstatus to control the lifecycle of a Sales Order:
 API Payload Example
 The controller formats the data to match the Frappe Sales Order Doctype requirements:
 
-JSON
+```json
 {
   "doctype": "Sales Order",
   "customer": "John Doe",
   "docstatus": 0,
-  "company": "MANJITD",
+  "company": "{your_frappy_name}D",
   "items": [
     {
       "item_code": "IOC2",
