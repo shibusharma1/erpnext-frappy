@@ -25,13 +25,16 @@ class SalesOrderRequest extends FormRequest
             'grand_total' => 'nullable|numeric',
             'set_warehouse' => 'nullable|string|max:255',
             'items' => 'nullable|array',
-            'items.*.item_code' => 'nullable_with:items|string',
-            'items.*.qty' => 'nullable_with:items|numeric',
-            'items.*.rate' => 'nullable_with:items|numeric',
-            'items.*.amount' => 'nullable_with:items|numeric',
+
+            // Use 'nullable' or 'required_with' instead of the non-existent 'nullable_with'
+            'items.*.item_code' => 'nullable|string',
+            'items.*.qty' => 'nullable|numeric',
+            'items.*.rate' => 'nullable|numeric',
+            'items.*.amount' => 'nullable|numeric',
+
             'payment_schedule' => 'nullable|array',
-            'payment_schedule.*.due_date' => 'nullable_with:payment_schedule|date',
-            'payment_schedule.*.payment_amount' => 'nullable_with:payment_schedule|numeric',
+            'payment_schedule.*.due_date' => 'nullable|date',
+            'payment_schedule.*.payment_amount' => 'nullable|numeric',
         ];
     }
 }
