@@ -14,15 +14,17 @@ class PaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'payment_type' => 'required|string',
-            'posting_date' => 'required|date',
-            'party_type' => 'required|string',
-            'party' => 'required|string',
-            'paid_from' => 'required|string',
-            'paid_to' => 'required|string',
-            'paid_amount' => 'required|numeric',
+            'payment_type' => 'nullable|string',
+            'posting_date' => 'nullable|date',
+            'party_type' => 'nullable|string',
+            'party' => 'nullable|string',
+            'paid_from' => 'nullable|string',
+            'paid_to' => 'nullable|string',
+            'paid_amount' => 'nullable|numeric',
+            'received_amount' => 'nullable|numeric',
             'reference_no' => 'nullable|string',
             'remarks' => 'nullable|string',
+            'docstatus' => 'nullable|string',
         ];
     }
 }

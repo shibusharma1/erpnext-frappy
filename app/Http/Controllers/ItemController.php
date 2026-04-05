@@ -23,7 +23,7 @@ class ItemController extends Controller
 
         $response = Http::withToken($this->accessToken())
             ->get($this->baseUrl, [
-                'fields' => json_encode(["name", "item_code", "item_name", "standard_rate", "valuation_rate", "last_purchase_rate"]),
+                'fields' => json_encode(["name", "item_code", "item_name", "standard_rate", "valuation_rate", "last_purchase_rate","item_group"]),
                 'limit_page_length' => 100
             ]);
 

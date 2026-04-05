@@ -2,7 +2,7 @@
 @section('title', 'Item Details')
 
 @section('contents')
-    <div class="min-h-screen flex items-center justify-center py-10 px-4">
+    <div class="flex items-center justify-center py-10 px-4">
         <div class="w-full max-w-3xl bg-white rounded-lg shadow-lg p-8">
 
             <h2 class="text-3xl font-bold mb-6">Item Details</h2>
@@ -12,12 +12,12 @@
                 <div><strong>Code:</strong> {{ $item['item_code'] }}</div>
                 <div><strong>Name:</strong> {{ $item['item_name'] }}</div>
                 <div><strong>Group:</strong> {{ $item['item_group'] }}</div>
-                <div><strong>UOM:</strong> {{ $item['stock_uom'] }}</div>
+                {{-- <div><strong>UOM:</strong> {{ $item['stock_uom'] }}</div> --}}
 
                 <div><strong>Brand:</strong> {{ $item['brand'] ?? 'N/A' }}</div>
-                <div><strong>Country:</strong> {{ $item['country_of_origin'] ?? 'N/A' }}</div>
+                {{-- <div><strong>Country:</strong> {{ $item['country_of_origin'] ?? 'N/A' }}</div> --}}
 
-                <div><strong>Standard Rate:</strong> {{ $item['standard_rate'] }}</div>
+                {{-- <div><strong>Standard Rate:</strong> {{ $item['standard_rate'] }}</div>
                 <div><strong>Valuation Rate:</strong> {{ $item['valuation_rate'] }}</div>
 
                 <div><strong>Opening Stock:</strong> {{ $item['opening_stock'] }}</div>
@@ -35,7 +35,7 @@
                 <div><strong>Stock Item:</strong> {{ $item['is_stock_item'] ? 'Yes' : 'No' }}</div>
                 <div><strong>Sales Item:</strong> {{ $item['is_sales_item'] ? 'Yes' : 'No' }}</div>
 
-                <div><strong>Purchase Item:</strong> {{ $item['is_purchase_item'] ? 'Yes' : 'No' }}</div>
+                <div><strong>Purchase Item:</strong> {{ $item['is_purchase_item'] ? 'Yes' : 'No' }}</div> --}}
                 <div><strong>Disabled:</strong> {{ $item['disabled'] ? 'Yes' : 'No' }}</div>
 
                 <div class="col-span-2">

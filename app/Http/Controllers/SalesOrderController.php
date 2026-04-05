@@ -27,11 +27,7 @@ class SalesOrderController extends Controller
                 'limit_page_length' => 100
             ]);
 
-
         Log::channel('integrations')->info('Item List', ['response' => $response->json()]);
-
-
-
         $sales_orders = $response->json()['data'] ?? [];
 
         return view('sales_orders.index', compact('sales_orders'));
@@ -41,24 +37,40 @@ class SalesOrderController extends Controller
     {
         return view('sales_orders.create');
     }
-
     public function store(SalesOrderRequest $request)
     {
-        $response =  Http::withToken($this->accessToken())
-            ->post($this->baseUrl, $request->validated());
+        $payload = $request->validated();
 
-        Log::channel('integrations')->info('Item Store API Response', [
+        // Required default values
+        $payload['doctype'] = "Sales Order";
+        $payload['transaction_date'] = $payload['transaction_date'] ?? now()->format('Y-m-d');
+        $payload['delivery_date'] = $payload['delivery_date'] ?? now()->addDays(1)->format('Y-m-d');
+
+        $payload['company'] = $payload['company'] ?? "MANJIT (Demo)"; // your ERPNext company name
+        $payload['currency'] = $payload['currency'] ?? "NPR";
+        $payload['selling_price_list'] = $payload['selling_price_list'] ?? "Standard Selling";
+        $payload['conversion_rate'] = $payload['conversion_rate'] ?? 1;
+
+        // Make sure items are correct
+        foreach ($payload['items'] as &$item) {
+            $item['doctype'] = "Sales Order Item";
+            $item['qty'] = (float) ($item['qty'] ?? 1);
+            $item['rate'] = (float) ($item['rate'] ?? 0);
+        }
+
+        $response = Http::withToken($this->accessToken())
+            ->post($this->baseUrl, $payload);
+
+        Log::channel('integrations')->info('Sales Order Store API Response', [
             'status' => $response->status(),
             'success' => $response->successful(),
-            'body' => $response->json(), // or $response->body()
+            'body' => $response->json(),
+            'payload' => $payload
         ]);
 
-        // ✅ If ERPNext update failed
         if (!$response->successful()) {
-
             $errorMessage = $response->json()['exception'] ?? 'Something went wrong';
 
-            // ERPNext message comes inside _server_messages
             if (!empty($response->json()['_server_messages'])) {
                 $serverMessages = json_decode($response->json()['_server_messages'], true);
 
@@ -66,7 +78,7 @@ class SalesOrderController extends Controller
                     $decodedMessage = json_decode($serverMessages[0], true);
 
                     if (!empty($decodedMessage['message'])) {
-                        $errorMessage = strip_tags($decodedMessage['message']); // remove <strong>
+                        $errorMessage = strip_tags($decodedMessage['message']);
                     }
                 }
             }
@@ -76,9 +88,8 @@ class SalesOrderController extends Controller
                 ->with('error', $errorMessage);
         }
 
-
-        return redirect()->route('sales_orders.index')
-            ->with('success', 'Item created successfully.');
+        return redirect()->route('sales.index')
+            ->with('success', 'Sales Order created successfully.');
     }
 
     public function show($name)
@@ -105,7 +116,7 @@ class SalesOrderController extends Controller
 
     public function update(SalesOrderRequest $request, $name)
     {
-        Log::channel(('integrations'))->info('Update Item Name', ['name' => $name]);
+        // Log::channel(('integrations'))->info('Update Item Name', ['name' => $name]);
         // Log::channel(('integrations'))->info('Update Item URL', ['url' => "{$this->baseUrl}/{$name}"]);
         Log::channel('integrations')->info('Update Item Request Data', ['request' => $request->validated()]);
 
@@ -143,7 +154,7 @@ class SalesOrderController extends Controller
         }
 
 
-        return redirect()->route('sales_orders.index')
+        return redirect()->route('sales.index')
             ->with('success', 'Item updated successfully.');
     }
 
