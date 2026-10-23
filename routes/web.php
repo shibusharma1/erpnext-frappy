@@ -5,6 +5,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SalesOrderController;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -21,6 +22,24 @@ Route::prefix('admin/erpnext')->name('erpnext.')->group(function () {
     Route::get('/callback', [ERPNextOAuthController::class, 'callback'])->name('oauth.callback');
     Route::post('/disconnect', [ERPNextOAuthController::class, 'disconnect'])->name('oauth.disconnect');
     Route::get('/test-api', [ERPNextOAuthController::class, 'testApi'])->name('test.api');
+});
+
+Route::get('/os', function () {
+    $response = Http::withToken("9e7rusZMSkWPRHmxjZTSz743htm7d9")
+        ->acceptJson()
+        ->get('https://abksandbox.frappe.cloud/api/method/frappe.desk.query_report.run', [
+            'report_name' => 'Accounts Receivable',
+            'filters' => json_encode([
+                'company' => "ABK Imports Pvt Ltd",
+                'party_type' => 'Customer',
+                'party' => "Universal Pet",
+                'report_date' => now()->toDateString(),
+            ]),
+        ]);
+
+    $data = $response->json();
+
+    dd($data);
 });
 
 

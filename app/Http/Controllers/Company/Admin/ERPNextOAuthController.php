@@ -13,7 +13,7 @@ use Log;
 
 class ERPNextOAuthController extends Controller
 {
-    private $baseUrl = 'https://manjit.frappe.cloud';
+    private $baseUrl = 'https://abksandbox.frappe.cloud/';
     // private $domain = 'manjit.frappe.cloud';
     private $clientId;
     private $clientSecret;
@@ -162,13 +162,13 @@ class ERPNextOAuthController extends Controller
 
                     'client_id' => $this->clientId,
                     'client_secret' => $this->clientSecret,
-                    'redirect_uri' => 'http://127.0.0.1:8000/callback',
-                    'api_base_url' => 'https://manjit.frappe.cloud',
+                    'redirect_uri' => 'http://127.0.0.1:8000/admin/erpnext/callback',
+                    'api_base_url' => 'https://abksandbox.frappe.cloud/',
 
                     'token_response' => $tokens,
 
                     'settings' => [
-                        'accounts_url' => 'https://manjit.frappe.cloud',
+                        'accounts_url' => 'https://abksandbox.frappe.cloud/',
                     ],
                 ]);
 

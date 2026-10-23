@@ -9,7 +9,7 @@ use App\Http\Requests\CustomerRequest;
 
 class CustomerController extends Controller
 {
-    protected string $baseUrl = 'https://manjit.frappe.cloud/api/resource/Customer';
+    protected string $baseUrl = 'https://abksandbox.frappe.cloud//api/resource/Customer';
     protected $erpTokenService;
 
     public function __construct(ERPTokenService $erpTokenService)
@@ -180,7 +180,7 @@ class CustomerController extends Controller
     {
 
         $result = $this->erpTokenService->getToken();
-        $response = Http::withToken($result['access_token'])->get('https://manjit.frappe.cloud/api/v2/method/ping');
+        $response = Http::withToken($result['access_token'])->get('https://abksandbox.frappe.cloud//api/v2/method/ping');
 
         Log::channel('integrations')->info('Ping Response', ['response' => $response->json()]);
 
